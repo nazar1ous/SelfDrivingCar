@@ -55,7 +55,7 @@ class CarEnv:
 
         # Once we have a client we can retrieve the world that is currently
         # running.
-        self.world = self.client.get_world()
+        self.world = self.client.load_world('Town04')
 
         world = self.client.load_world('Town04')
         # world = self.client.load_world('Town05_Opt')

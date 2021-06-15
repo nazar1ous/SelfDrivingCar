@@ -8,7 +8,7 @@ carEnv = CarEnv()
 carEnv.reset()
 
 # self.client = carla.Client('localhost', 2000)
-print(carEnv.client.get_available_maps())
+# print(carEnv.client.get_available_maps())
 
 for i in range(100):
     data = carEnv.front_camera
