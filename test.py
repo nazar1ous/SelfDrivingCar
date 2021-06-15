@@ -22,7 +22,7 @@ import numpy as np
 #     return masked
 
 
-img = cv.imread(cv.samples.findFile("c2.jpg"))
+img = cv.imread(cv.samples.findFile("bohdanData/c2.jpg"))
 
 img = roi(img)
 
