@@ -15,9 +15,10 @@ for i in range(100):
     result = make_prediction(data)
     carEnv.make_step(*result)
     # carEnv.make_step(5, 0)
+    # if i == 0:
+
     cv2.imwrite(f'./data/{i}.png', data)
     time.sleep(0.1)
     # pass
     # data = carEnv.get_data()
-
     print(i)

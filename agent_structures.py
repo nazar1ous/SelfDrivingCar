@@ -51,13 +51,13 @@ class CarEnv:
 
     def __init__(self):
         self.client = carla.Client('localhost', 2000)
-        self.client.set_timeout(2.0)
+        self.client.set_timeout(5.0)
 
         # Once we have a client we can retrieve the world that is currently
         # running.
         self.world = self.client.load_world('Town04')
 
-        world = self.client.load_world('Town04')
+        # world = self.client.load_world('Town04')
         # world = self.client.load_world('Town05_Opt')
 
         # The world contains the list blueprints that we can use for adding new
@@ -73,7 +73,10 @@ class CarEnv:
         self.collision_hist = []
         self.actor_list = []
 
-        self.transform = rd.choice(self.world.get_map().get_spawn_points())
+        # self.transform = rd.choice(self.world.get_map().get_spawn_points())
+        print(self.world.get_map().get_spawn_points())
+        self.transform = self.world.get_map().get_spawn_points()[0]
+
         self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
         self.actor_list.append(self.vehicle)
 
@@ -90,7 +93,7 @@ class CarEnv:
         self.actor_list.append(self.sensor)
         self.sensor.listen(lambda data: self.process_img(data))
         self.vehicle.apply_control(carla.VehicleControl(throttle=0.0,
-                                                        brake=0.0)) # initially passing some commands seems to help with time. Not sure why.
+                                                        brake=0.0))  # initially passing some commands seems to help with time. Not sure why.
         time.sleep(4)  # sleep to get things started and to not detect a collision when the car spawns/falls from sky.
 
         colsensor = self.world.get_blueprint_library().find('sensor.other.collision')
@@ -120,6 +123,12 @@ class CarEnv:
 
     def make_step(self, throttle, steer):
         self.vehicle.apply_control(carla.VehicleControl(throttle=throttle * 1.0, steer=steer * self.STEER_AMT))
+
+    def stop(self):
+        self.colsensor.destroy()
+        self.sensor.destroy()
+        self.rgb_cam.destroy()
+        self.vehicle.destroy()
 
     # def step(self, action):
     #     '''

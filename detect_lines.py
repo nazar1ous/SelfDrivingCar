@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from lines_filter import filter_lines, remove_roi_lines
+from lines_filter import filter_lines, remove_roi_lines, merge_lines
 
 
 def load_img(filename):
@@ -24,13 +24,18 @@ def white_mask(src):
     :param src:  image in np.ndarray
     :return:  image in np.ndarray
     """
-    img = cv.cvtColor(src, cv.COLOR_BGR2HLS)
+    img = cv.cvtColor(src, cv.COLOR_RGB2HLS)
 
-    lower_white = np.array([0, 165, 0])
+    lower_white = np.array([0, 0, 0])
     upper_white = np.array([255, 255, 255])
     white = cv.inRange(img, lower_white, upper_white)
 
-    return cv.bitwise_and(src, src, mask=white)
+    lower = np.uint8([240, 240, 240])
+    upper = np.uint8([255, 255, 255])
+    yellow = cv.inRange(img, lower, upper)
+
+    mask = cv.bitwise_or(white, yellow)
+    return cv.bitwise_and(src, src, mask=mask)
 
 
 def roi(src):
@@ -45,7 +50,7 @@ def roi(src):
 
     # creating polygon shape
     h, w = size[:2]
-    ppt = np.array([[0, h], [0, 0.66 * h], [0.25 * w, 0.4 * h], [0.75 * w, 0.4 * h], [w, 0.66 * h], [w, h]],
+    ppt = np.array([[0, h], [0, 0.66 * h], [0.25 * w, 0.5 * h], [0.75 * w, 0.5 * h], [w, 0.66 * h], [w, h]],
                    np.int32)
     ppt = ppt.reshape((-1, 1, 2))
 
@@ -100,15 +105,20 @@ def detect_lines(filename: str):
     # cv.imshow("GaussianBlur", img)
 
     # Lines
-    lines = cv.HoughLinesP(img, 1, np.pi / 180, 200, None, 150, 10)
+    lines = cv.HoughLinesP(img, 1, np.pi / 180, 200, None, 150, 0)
 
-    print(len(lines))
     # removes roi lines
     lines = remove_roi_lines(img, lines)
-    print(len(lines))
 
     # filter for lines
     # lines = filter_lines(lines)
+
+    # cluster lines
+    print(f"len(lines): {len(lines)}")
+    lines = merge_lines(lines)
+    # lines = merge_lines(lines)
+    print(f"len(lines): {len(lines)}")
+    # print(clusters)
 
     img_cvt = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
 
@@ -125,6 +135,7 @@ def detect_lines(filename: str):
 
 
 if __name__ == "__main__":
-    detect_lines("bohdanData/c1.jpg")
-    # detect_lines("data/32.png")
+    detect_lines("bohdanData/img.png")
+    # detect_lines("bohdanData/.jpg")
+    # detect_lines("data/48.png")
     # detect_lines("bohdanData/img2.png")
